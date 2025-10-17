@@ -12,7 +12,6 @@ LOCAL_PADRAO = "Porto de Cabedelo - PB"
 
 @st.cache_data
 def carregar_tabua():
-    """Carrega o arquivo JSON e transforma em DataFrame"""
     if not os.path.exists(JSON_PATH):
         st.error(f"❌ Arquivo '{JSON_PATH}' não encontrado.")
         return pd.DataFrame()
@@ -58,7 +57,7 @@ def carregar_tabua():
     if not df.empty:
         df["data_hora"] = pd.to_datetime(df["data"] + " " + df["hora"], errors="coerce")
         df = df.sort_values("data_hora").reset_index(drop=True)
-        df["dia_semana"] = df["data_hora"].dt.strftime("%A")  # Ex: Monday, Tuesday...
+        df["dia_semana"] = df["data_hora"].dt.strftime("%A") 
         traduz = {
             "Monday": "Segunda", "Tuesday": "Terça", "Wednesday": "Quarta",
             "Thursday": "Quinta", "Friday": "Sexta", "Saturday": "Sábado", "Sunday": "Domingo"
