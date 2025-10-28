@@ -9,18 +9,8 @@ st.set_page_config(page_title="🌊 Conversor de Tábuas de Maré", page_icon="�
 JSON_PATH = "tabua.json"
 LOCAL_PADRAO = "Porto de Cabedelo - PB"
 
-# 🔄 Seleção de ano disponível no JSON
-try:
-    with open(JSON_PATH, "r", encoding="utf-8") as f:
-        json_data = json.load(f)
-        ANOS_DISPONIVEIS = sorted({item.get("ano") for item in json_data if "ano" in item})
-except:
-    ANOS_DISPONIVEIS = []
-
-ano_selecionado = st.sidebar.selectbox("📅 Selecione o ano", ANOS_DISPONIVEIS, index=0)
-
 @st.cache_data
-def carregar_tabua(ano):
+def carregar_tabua_completa():
     if not os.path.exists(JSON_PATH):
         st.error(f"❌ Arquivo '{JSON_PATH}' não encontrado.")
         return pd.DataFrame()
@@ -34,9 +24,7 @@ def carregar_tabua(ano):
 
     registros = []
     for item in json_data:
-        if item.get("ano") != ano:
-            continue
-
+        ano = item.get("ano")
         dia_str = item.get("dia", "").strip()
         try:
             dia, mes = dia_str.split("/")
@@ -81,13 +69,11 @@ def main():
     st.sidebar.markdown("<h1 style='color:#b22222;'>🌊 Conversor de Tábuas de Maré</h1>", unsafe_allow_html=True)
     st.sidebar.write("---")
 
-    df = carregar_tabua(ano_selecionado)
+    df = carregar_tabua_completa()
 
     if df.empty:
         st.warning("Nenhum dado encontrado no JSON.")
         return
-
-    st.sidebar.success(f"✅ {len(df)} registros carregados com sucesso!")
 
     st.header("🔍 Filtros e Visualização")
 
@@ -98,7 +84,7 @@ def main():
         data_fim = st.date_input("Data final", value=None)
     with col2:
         altura_min = st.number_input("Altura mínima (m)", value=-2.0, step=0.01, format="%.2f")
-        altura_max = st.number_input("Altura máxima (m)", value=2.0, step=0.01, format="%.2f")
+        altura_max = st.number_input("Altura máxima (m)", value=0.7, step=0.01, format="%.2f")
     with col3:
         hora_inicio = st.time_input("Horário inicial", value=time(7, 0))
         hora_fim = st.time_input("Horário final", value=time(14, 0))
@@ -138,8 +124,10 @@ def main():
         chart_df = df_filtrado.set_index("data_hora")[["altura"]]
         st.line_chart(chart_df)
 
+        anos_csv = sorted(set(pd.to_datetime(df_filtrado["data"]).dt.year))
+        nome_csv = f"mare_{'-'.join(map(str, anos_csv))}.csv"
         csv = df_filtrado.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 Baixar CSV", csv, f"mare_{ano_selecionado}.csv", "text/csv")
+        st.download_button("📥 Baixar CSV", csv, nome_csv, "text/csv")
 
 if __name__ == "__main__":
     main()
