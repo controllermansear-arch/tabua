@@ -81,8 +81,8 @@ def carregar_tabua(ano_filtro):
         }
         df["dia_semana"] = df["dia_semana"].map(traduz).fillna(df["dia_semana"])
 
-        # Cálculo do horário de embarque (1h30 antes da maré)
-        df["horario_embarque"] = (df["data_hora"] - timedelta(hours=2, minutes=00)).dt.strftime("%H:%M")
+        # Cálculo do horário de embarque (2h antes da maré, arredondado para 30min)
+        df["horario_embarque"] = (df["data_hora"] - timedelta(hours=2)).dt.round("30min").dt.strftime("%H:%M")
 
         # Reorganiza as colunas (data_hora fica oculta ou no final, aqui deixaremos no final para o gráfico)
         colunas = ["data", "hora", "horario_embarque", "altura", "tipo", "dia_semana", "local", "data_hora"]
