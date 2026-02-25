@@ -10,7 +10,7 @@ st.set_page_config(page_title="🌊 Conversor de Tábuas de Maré", page_icon="�
 JSON_PATH = "tabua.json"
 LOCAL_PADRAO = "Porto de Cabedelo - PB"
 
-# 🔄 Seleção de ano disponível no JSON
+# 🔄 Seleção de ano e tipo de operação
 try:
     with open(JSON_PATH, "r", encoding="utf-8") as f:
         json_data = json.load(f)
@@ -18,10 +18,13 @@ try:
 except:
     ANOS_DISPONIVEIS = []
 
-ano_selecionado = st.sidebar.selectbox("📅 Selecione o ano", ANOS_DISPONIVEIS, index=0)
+default_year_index = ANOS_DISPONIVEIS.index(2026) if 2026 in ANOS_DISPONIVEIS else 0
+ano_selecionado = st.sidebar.selectbox("📅 Selecione o ano", ANOS_DISPONIVEIS, index=default_year_index)
+
+tipo_filtro = st.sidebar.radio("🛥️Operação", ["Ilha", "Extremo"], index=0)
 
 @st.cache_data
-def carregar_tabua_completa():
+def carregar_tabua(ano_filtro):
     if not os.path.exists(JSON_PATH):
         st.error(f"❌ Arquivo '{JSON_PATH}' não encontrado.")
         return pd.DataFrame()
@@ -36,6 +39,9 @@ def carregar_tabua_completa():
     registros = []
     for item in json_data:
         ano = item.get("ano")
+        if ano != ano_filtro:
+            continue
+            
         dia_str = item.get("dia", "").strip()
         try:
             dia, mes = dia_str.split("/")
@@ -98,7 +104,7 @@ def main():
     # Define valores padrão baseados no tipo de filtro
     altura_max_default = 2.0
     hora_inicio_default = time(7, 0)
-    hora_fim_default = time(14, 0)
+    hora_fim_default = time(16, 0)
     
     if tipo_filtro == "Ilha":
         altura_max_default = 0.7
@@ -116,7 +122,7 @@ def main():
         data_fim = st.date_input("Data final", value=None)
     with col2:
         altura_min = st.number_input("Altura mínima (m)", value=-2.0, step=0.01, format="%.2f")
-        altura_max = st.number_input("Altura máxima (m)", value=2.0, step=0.01, format="%.2f")
+        altura_max = st.number_input("Altura máxima (m)", value=altura_max_default, step=0.01, format="%.2f")
     with col3:
         hora_inicio = st.time_input("Horário inicial", value=hora_inicio_default)
         hora_fim = st.time_input("Horário final", value=hora_fim_default)
