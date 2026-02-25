@@ -82,7 +82,7 @@ def carregar_tabua(ano_filtro):
         df["dia_semana"] = df["dia_semana"].map(traduz).fillna(df["dia_semana"])
 
         # Cálculo do horário de embarque (1h30 antes da maré)
-        df["horario_embarque"] = (df["data_hora"] - timedelta(hours=1, minutes=30)).dt.strftime("%H:%M")
+        df["horario_embarque"] = (df["data_hora"] - timedelta(hours=2, minutes=00)).dt.strftime("%H:%M")
 
         # Reorganiza as colunas (data_hora fica oculta ou no final, aqui deixaremos no final para o gráfico)
         colunas = ["data", "hora", "horario_embarque", "altura", "tipo", "dia_semana", "local", "data_hora"]
@@ -108,7 +108,7 @@ def main():
     
     if tipo_filtro == "Ilha":
         altura_max_default = 0.7
-        hora_inicio_default = time(7, 45)
+        hora_inicio_default = time(8, 15)
         hora_fim_default = time(14, 45)
     elif tipo_filtro == "Extremo":
         altura_max_default = 0.6
