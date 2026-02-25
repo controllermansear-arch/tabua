@@ -90,7 +90,7 @@ def carregar_tabua(ano_filtro):
     return df
 
 def main():
-    st.sidebar.markdown("<h1 style='color:#b22222;'>🌊 Conversor de Tábuas de Maré</h1>", unsafe_allow_html=True)
+    st.sidebar.markdown("<h1 style='color:#b22222;'>🌊 Mansear Tábuas de Maré</h1>", unsafe_allow_html=True)
     st.sidebar.write("---")
 
     df = carregar_tabua(ano_selecionado)
